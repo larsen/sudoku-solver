@@ -32,3 +32,17 @@
                                'empty
                                (parse-integer (make-string 1 :initial-element c)))))))
     board))
+
+(defun print-cell (cell)
+  (format t "~A "
+          (if (equal (cell-value cell) 'empty)
+              "."
+              (cell-value cell))))
+
+(defun print-board (board)
+  (loop
+     for i from 0 to 8
+     do (progn (loop
+                  for j from 0 to 8
+                  do (print-cell (aref board j i)))
+               (format t "~%"))))
