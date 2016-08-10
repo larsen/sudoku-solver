@@ -14,6 +14,12 @@
          while line
          collect line))))
 
+(defun make-cell-from-char (c)
+  (make-cell :value (if (equal c #\.)
+                        'empty
+                        (parse-integer
+                         (make-string 1 :initial-element c)))))
+
 (defun load-board (filename)
   (let ((board (make-array '(9 9) :initial-element 'empty))
         (lines (remove-if
@@ -25,12 +31,7 @@
          (loop
             for x upfrom 0 
             for c across (remove #\Space line)
-            do (setf
-                (aref board x y)
-                (make-cell :value 
-                           (if (equal c #\.)
-                               'empty
-                               (parse-integer (make-string 1 :initial-element c)))))))
+            do (setf (aref board x y) (make-cell-from-char c))))
     board))
 
 (defun print-cell (cell)
