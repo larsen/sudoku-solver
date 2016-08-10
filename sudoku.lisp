@@ -2,6 +2,10 @@
 
 (in-package #:sudoku)
 
+(defstruct cell
+  (value 'empty)
+  (exclusions '()))
+
 (defun slurp-file (filename)
   (let ((in (open filename)))
     (when in
@@ -21,8 +25,10 @@
          (loop
             for x upfrom 0 
             for c across (remove #\Space line)
-            do (setf (aref board x y)
-                     (if (equal c #\.)
-                         'empty
-                         (parse-integer (make-string 1 :initial-element c))))))
+            do (setf
+                (aref board x y)
+                (make-cell :value 
+                           (if (equal c #\.)
+                               'empty
+                               (parse-integer (make-string 1 :initial-element c)))))))
     board))
