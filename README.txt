@@ -1,1 +1,4 @@
-This is the stub README.txt for the "sudoku" project.
+A summer exercise with Common Lisp.
+Sudoku assistant, with TeX based output.
+
+WIP
