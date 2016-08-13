@@ -3,10 +3,16 @@
 (in-package #:sudoku)
 
 (defstruct cell
+  "A Sudoku problem is an array of cells.  Each cell contains a
+value (most of them will be 'empty at the beginning) and a list of
+exclusions: numbers that, depending on the values of other cells in
+the board, are not possible values of the cell."
   (value 'empty)
   (exclusions '()))
 
 (defun slurp-file (filename)
+  "Given a filename, returns a list of strings, one for each of the
+lines in the file."
   (let ((in (open filename)))
     (when in
       (loop
@@ -15,12 +21,16 @@
          collect line))))
 
 (defun make-cell-from-char (c)
+  "Given a char, returns a new cell. The value it's the integer
+corresponding to the digit represented by the character, or 'empty
+if the char is '.' (representative of the empty cell value)."
   (make-cell :value (if (equal c #\.)
                         'empty
                         (parse-integer
                          (make-string 1 :initial-element c)))))
 
 (defun load-board (filename)
+  "Loads a sudoku problem from a file."
   (let ((board (make-array '(9 9) :initial-element 'empty))
         (lines (remove-if
                 (lambda (l) (equal l ""))
@@ -35,6 +45,8 @@
     board))
 
 (defun cell-representation (cell)
+  "Translates a cell value into the corresponding character. Used for
+printing the board."
   (if (equal (cell-value cell) 'empty)
               "."
               (cell-value cell)))
@@ -53,6 +65,9 @@
                (format t "~%"))))
 
 (defun display-board (board)
+  "Display a sudoku problem. It uses /tmp/ directory for storing
+intermediate files. It uses TeX and xdvi to produce and display a
+graphical representation."
   (let ((filename "/tmp/board"))
     (progn
       (with-open-file (s (concatenate 'string filename ".tex")
@@ -85,6 +100,8 @@ $$\\vbox{
                             (list filename)))))
 
 (defun region-boundaries (x y)
+  "Given the coordinates of a cell, returns a list representing (x1 x2
+y1 y2) the boundaries of the 3x3 region where the cell resides."
   (list (* 3 (truncate (/ x 3)))
         (+ 2 (* 3 (truncate (/ x 3))))
         (* 3 (truncate (/ y 3)))
@@ -94,6 +111,8 @@ $$\\vbox{
   (equal value 'empty))
 
 (defun extend-exclusions (cell board x y)
+  "Given a board and a particular cell, returns a list of inferrable
+exclusions for the cell."
   (remove-if
    #'empty-p
    (remove-duplicates
@@ -119,6 +138,8 @@ $$\\vbox{
                       collect (cell-value (aref board i j))))))))
 
 (defun extend-all-exclusions (board)
+  "Destructively updates a board, computing exclusions for all the
+cells in the board."
   (loop
      for i from 0 to 8
      do (progn (loop
