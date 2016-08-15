@@ -64,7 +64,7 @@ printing the board."
                   do (print-cell (aref board j i)))
                (format t "~%"))))
 
-(defun display-board (board)
+(defun display-board-tex (board)
   "Display a sudoku problem. It uses /tmp/ directory for storing
 intermediate files. It uses TeX and xdvi to produce and display a
 graphical representation."
