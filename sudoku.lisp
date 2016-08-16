@@ -97,7 +97,7 @@ $$\\vbox{
                             (list "-output-directory" "/tmp" filename)
                             :output *standard-output*)
       (external-program:run "/usr/bin/xdvi"
-                            (list filename)))))
+                            (list "-s" "5" filename)))))
 
 (defun region-boundaries (x y)
   "Given the coordinates of a cell, returns a list representing (x1 x2
