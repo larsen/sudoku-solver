@@ -1,5 +1,5 @@
 ;;;; package.lisp
 
 (defpackage #:sudoku
-  (:use :cl))
+  (:use :cl :sdl))
 
