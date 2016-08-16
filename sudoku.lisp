@@ -146,3 +146,95 @@ cells in the board."
                   for j from 0 to 8
                   do (setf (cell-exclusions (aref board i j))
                            (extend-exclusions (aref board i j) board i j))))))
+
+(defun number-excluded-p (n cell)
+  (member n (cell-exclusions cell)))
+
+(defun n-6th (n)
+  (let ((cell-width (/ *window-width* 9)))
+    (* n (truncate (/ cell-width 6)))))
+
+(defun render-exclusions (cell x y)
+  (let ((cell-width (/ *window-width* 9))
+        (cell-height (/ *window-height* 9))
+        (exclusions (sort (cell-exclusions cell) #'<)))
+    (loop
+       for n in exclusions
+       for displacements in `((,(n-6th 1) ,(n-6th 1))
+                              (,(n-6th 3) ,(n-6th 1))
+                              (,(n-6th 5) ,(n-6th 1))
+                              (,(n-6th 1) ,(n-6th 3))
+                              (,(n-6th 5) ,(n-6th 3))
+                              (,(n-6th 1) ,(n-6th 5))
+                              (,(n-6th 3) ,(n-6th 5))
+                              (,(n-6th 5) ,(n-6th 5)))
+       do (sdl:draw-surface-at-*
+           (sdl:render-string-shaded
+            (format nil "~a" n)
+            sdl:*black* sdl:*white*
+            :cache t)
+           (+ (* cell-width x) (car displacements))
+           (+ (* cell-height y) (cadr displacements))))))
+
+(defun render-cell (cell x y)
+  (let ((cell-width (/ *window-width* 9))
+        (cell-height (/ *window-height* 9)))
+    (fill-surface (if (equal (cell-value cell) 'empty)
+                      sdl:*white*
+                      sdl:*yellow*)
+                  :template (rectangle :x (* cell-width x)
+                                       :y (* cell-height y)
+                                       :h cell-height
+                                       :w cell-width))
+    (sdl:draw-surface-at-*
+     (sdl:render-string-shaded
+      (format nil "~a" (cell-representation cell))
+      sdl:*red* sdl:*white*
+      :cache t)
+     (+ (* cell-width x) (n-6th 3))
+     (+ (* cell-height y) (n-6th 3)))
+    (if (empty-p (cell-value cell))
+      (render-exclusions cell x y))))
+
+(defun render-grid ()
+  (let ((cell-width (/ *window-width* 9))
+        (cell-height (/ *window-height* 9)))
+    (loop
+       for i from 0 to 8
+       do (draw-line (sdl:point :x (* cell-width i)
+                                :y 0)
+                     (sdl:point :x (* cell-width i)
+                                :y *window-height*)
+                     :color sdl:*black*))
+    (loop
+       for i from 0 to 8
+       do (draw-line (sdl:point :x 0
+                                :y (* cell-height i))
+                     (sdl:point :x *window-width*
+                                :y (* cell-height i))
+                     :color sdl:*black*))))
+
+(defun render-board (board)
+  (loop
+     for i from 0 to 8
+     do (loop
+           for j from 0 to 8
+           do (render-cell (aref board i j) i j)))
+  (render-grid)
+  (update-display))
+
+(defparameter *window-width* 900)
+(defparameter *window-height* 900)
+(defparameter *window* nil)
+
+(defun display-board (board)
+  (with-init ()
+    (setf *window* (window *window-width* *window-height*))
+    (clear-display sdl:*white*)
+    (render-board board)
+    (update-display)
+    (with-events ()
+      (:quit-event () t)
+      (:key-down-event (:key key)
+                       (case key
+                         (:sdl-key-escape (push-quit-event)))))))
