@@ -230,6 +230,7 @@ cells in the board."
 (defun display-board (board)
   (with-init ()
     (setf *window* (window *window-width* *window-height*))
+    (sdl:initialise-default-font sdl:*font-9x18*)
     (clear-display sdl:*white*)
     (render-board board)
     (update-display)
