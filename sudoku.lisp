@@ -184,23 +184,26 @@ cells in the board."
 
 (defun render-cell (cell x y)
   (let ((cell-width (/ *window-width* 9))
-        (cell-height (/ *window-height* 9)))
-    (fill-surface (if (equal (cell-value cell) 'empty)
-                      sdl:*white*
-                      sdl:*yellow*)
-                  :template (rectangle :x (* cell-width x)
-                                       :y (* cell-height y)
-                                       :h cell-height
-                                       :w cell-width))
+        (cell-height (/ *window-height* 9))
+        (cell-background (if (equal (cell-value cell) 'empty)
+                             (if (= (length (cell-exclusions cell)) 8)
+                                 sdl:*green*
+                                 sdl:*white*)
+                             sdl:*yellow*)))
+    (fill-surface cell-background
+     :template (rectangle :x (* cell-width x)
+                          :y (* cell-height y)
+                          :h cell-height
+                          :w cell-width))
     (sdl:draw-surface-at-*
      (sdl:render-string-shaded
       (format nil "~a" (cell-representation cell))
-      sdl:*red* sdl:*white*
+      sdl:*red* cell-background
       :cache t)
      (+ (* cell-width x) (n-6th 3))
      (+ (* cell-height y) (n-6th 3)))
     (if (empty-p (cell-value cell))
-      (render-exclusions cell x y))))
+        (render-exclusions cell x y))))
 
 (defun render-grid ()
   (let ((cell-width (/ *window-width* 9))
