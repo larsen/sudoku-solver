@@ -110,13 +110,15 @@ y1 y2) the boundaries of the 3x3 region where the cell resides."
 (defun empty-p (value)
   (equal value 'empty))
 
-(defun extend-exclusions (cell board x y)
+(defun extend-exclusions (board x y)
   "Given a board and a particular cell, returns a list of inferrable
 exclusions for the cell."
   (remove-if
    #'empty-p
    (remove-duplicates
     (concatenate 'list
+                 ;; Existing exclusions
+                 (cell-exclusions (aref board x y))
                  ;; Examine column
                  (loop
                     for i from 0 to 8
@@ -146,6 +148,10 @@ cells in the board."
                   for j from 0 to 8
                   do (setf (cell-exclusions (aref board i j))
                            (extend-exclusions (aref board i j) board i j))))))
+     do (loop
+           for j from 0 to 8
+           do (setf (cell-exclusions (aref board i j))
+                    (extend-exclusions board i j)))))
 
 (defun number-excluded-p (n cell)
   (member n (cell-exclusions cell)))
