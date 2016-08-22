@@ -130,14 +130,14 @@ exclusions for the cell."
                     when (not (= i y))
                     collect (cell-value (aref board x i)))
                  ;; Examine region
-                 (destructuring-bind
-                       (x1 x2 y1 y2) (region-boundaries x y)
+                 (destructuring-bind (x1 x2 y1 y2) (region-boundaries x y)
                    (loop
                       for i from x1 to x2
-                      for j from y1 to y2
-                      when (not (and (= i x)
-                                     (= j y)))
-                      collect (cell-value (aref board i j))))))))
+                      nconc (loop
+                            for j from y1 to y2
+                            when (not (and (= i x)
+                                           (= j y)))
+                            collect (cell-value (aref board i j)))))))))
 
 (defun extend-all-exclusions (board)
   "Destructively updates a board, computing exclusions for all the
